@@ -18,26 +18,29 @@ static commandResult_t CMD_SendGET(const void* context, const char* cmd, const c
 #endif
 	return CMD_RES_OK;
 }
+
 // SendPOST http://localhost:3000/ 3000 "application/json" "{ \"a\":123, \"b\":77 }"
 static commandResult_t CMD_SendPOST(const void* context, const char* cmd, const char* args, int cmdFlags) {
 	ADDLOG_INFO(LOG_FEATURE_CMD, " CMD_SendPOST received with args %s", args);
 
 	Tokenizer_TokenizeString(args, TOKENIZER_ALLOW_QUOTES | TOKENIZER_ALLOW_ESCAPING_QUOTATIONS);
+	// HTTPClient_Async_SendPost arguments:
+	// const char *url_in, int http_port, const char *content_type, const char *post_content, const char *post_header
 
 #if defined(PLATFORM_BEKEN) || defined(WINDOWS)
-	HTTPClient_Async_SendPost(Tokenizer_GetArg(0),
-		Tokenizer_GetArgIntegerDefault(1, 80),
-		Tokenizer_GetArg(2),
-		Tokenizer_GetArg(3),
-		Tokenizer_GetArg(4));
+	HTTPClient_Async_SendPost(Tokenizer_GetArg(0), // url_in
+		Tokenizer_GetArgIntegerDefault(1, 80), // http_port
+		Tokenizer_GetArg(2), // content_type
+		Tokenizer_GetArg(3), // post_content
+		Tokenizer_GetArg(4)); // post_header
 #else
 	ADDLOG_INFO(LOG_FEATURE_CMD, " CMD_SendPOST not supported!");
 
 #endif
 	return CMD_RES_OK;
 }
-static commandResult_t CMD_TestPOST(const void* context, const char* cmd, const char* args, int cmdFlags) {
 
+static commandResult_t CMD_TestPOST(const void* context, const char* cmd, const char* args, int cmdFlags) {
 #if defined(PLATFORM_BEKEN) || defined(WINDOWS)
 	HTTPClient_Async_SendPost("http://localhost:3000/",
 		3000,

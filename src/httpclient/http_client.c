@@ -918,14 +918,21 @@ void httpclient_freeMemory(httprequest_t *request)
 	}
 	if (request->flags & HTTPREQUEST_FLAG_FREE_POST_BUF) {
 		free((void*)request->client_data.post_buf);
+		free((void*)request->client_data.post_buf_len);
+	}
+	if (request->flags & HTTPREQUEST_FLAG_FREE_RESP_BUF) {
+		free((void*)request->client_data.response_buf);
+		free((void*)request->client_data.response_buf_len);
 	}
 	if(request->flags & HTTPREQUEST_FLAG_FREE_URLONDONE) {
 		free((void*)request->url);
+		free((void*)request->port);
 	}
 	if(request->flags & HTTPREQUEST_FLAG_FREE_SELFONDONE) {
 		free((void*)request);
 	}
 }
+
 int httpclient_common(httpclient_t *client, const char *url, int port, const char *ca_crt, int method,
                       uint32_t timeout_ms,
                       httpclient_data_t *client_data)
@@ -1261,6 +1268,7 @@ int HTTPClient_Async_SendPost(const char *url_in, int http_port, const char *con
 
 	client_data->response_buf = 0;  //Sets a buffer to store the result.
 	client_data->response_buf_len = 0;  //Sets the buffer size.
+	request->flags |= HTTPREQUEST_FLAG_FREE_RESP_BUF;
 	if (post_header && *post_header) {
 		HTTPClient_SetCustomHeader(client, strdup(post_header));  //Sets the custom header if needed.
 		// NOTE: remember to free it!
